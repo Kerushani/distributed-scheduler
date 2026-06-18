@@ -1,21 +1,38 @@
+package scheduler
+
+import (
+	"scheduler-sim/cluter"
+	"scheduler-sim/jobs"
+)
+
+type GreedyScheduler struct{}
+
 type Scheduler interface {
-	Schedule(c *cluster.Cluster), jobs []*jobs.Job, tick int
+	Schedule(c *cluster.Cluster, jobs []*jobs.Job, tick int) []Decision
+}
+
+type Decision struct {
+	JobID string
+	NodeID string
 }
 
 func scoreNode(n *cluster.Node, j *jobs.Job) int {
-	remainingCPU += n.TotalCPU - n.UsedCPU - j.CPU
+	remainingCPU := n.TotalCPU - n.UsedCPU - j.CPU
 	remainingMem := n.TotalMemory - n.UsedMemory - j.Memory
 
-	return - remainingCPU - remainingMem
+	return - (remainingCPU + remainingMem)
 }
 
-func (s *GreedyScheduler) Schedule(c *cluster.Cluster, jobs []*jobs.Job, tick int) {
+func (s *GreedyScheduler) Schedule(c *cluster.Cluster, jobs []*jobs.Job, tick int) []Decision {
+
+	decisions := []Decision{}
+
 	for _, job := range jobs {
-		bestNode := ""
+		bestNodeID := ""
 		bestScore := -1 << 31
 
 		for _, node := range c.Nodes {
-			if !canFit(node, job) {
+			if !node.canFit(job) {
 				continue
 			}
 
@@ -23,12 +40,16 @@ func (s *GreedyScheduler) Schedule(c *cluster.Cluster, jobs []*jobs.Job, tick in
 
 			if score > bestScore {
 				bestScore = score
-				bestNode = node.ID
+				bestNodeID = node.ID
 			}
 		}
 
 		if bestNode != "" {
-			assignJob(c.Nodes[bestNode], job, tick)
+			decisions = append(decisions, Decision{
+				JobID: job.ID,
+				NodeID: bestNodeID,
+			})
 		}
 	}
+	return decisions
 }

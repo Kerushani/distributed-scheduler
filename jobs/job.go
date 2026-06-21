@@ -12,6 +12,7 @@ type Job struct {
 	Priority int
 
 	StartTick int
+	ArrivalTick int
 	EndTick int
 
 	AssignedNode string

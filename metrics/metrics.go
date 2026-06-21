@@ -49,7 +49,7 @@ func (m *Tracker) Collect(
 	}
 
 	for _, job := range completedJobs {
-		if _, exists := m.JobTurnarounds[job.ID]; !exists {
+		if _, exists := m.JobTurnarounds[job.ID]; exists {
 			continue
 		}
 		m.JobQueueWaits[job.ID] = job.StartTick - job.ArrivalTick
@@ -115,9 +115,9 @@ func (m *Tracker) PrintReport(schedulerName string) {
 
 	fmt.Printf("Makespan: %d ticks\n", m.Makespan)
 	fmt.Printf("Average Utilization: %.2f%%\n", m.AverageUtilization())
-	fmt.Printf("Average Queue Wait: %.2f%%\n", m.AverageQueueWait())
+	fmt.Printf("Average Queue Wait: %.2f ticks\n", m.AverageQueueWait())
 	fmt.Printf("Average Turnaround Time: %.2f ticks\n", m.AverageTurnaroundTime())
-	fmt.Printf("Average Service Time: %.2f%%\n", m.AverageServiceTime())
+	fmt.Printf("Average Service Time: %.2f ticks\n", m.AverageServiceTime())
 	fmt.Printf("P95 Queue Wait: %.2f ticks\n", m.PercentileQueueWait(0.95))
 
 	fmt.Println()

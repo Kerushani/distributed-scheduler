@@ -29,8 +29,7 @@ func main() {
 	fmt.Printf("Workload profile: %s\n", profile)
 	jobs.DebugPrint(workload)
 	fmt.Println()
-	
-	jobs.DebugPrint(workload)
+
 	greedyCluster := cluster.NewCluster(3, 8, 16)
 
 	greedyEngine := simulator.Engine{

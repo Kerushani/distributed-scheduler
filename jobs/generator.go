@@ -4,7 +4,7 @@ import "fmt"
 
 type Profile string
 
-// a generator tjat produces workloads with arrival patterns to simulate burst and steady load
+// a generator that produces workloads with arrival patterns to simulate burst and steady load
 
 const(
 	ProfileBurst Profile = "burst"
@@ -22,10 +22,10 @@ func Generate(profile Profile) []*Job {
 
 func burstWorkload() []*Job{
 	return []*Job{
-		{ID: "job-1", CPU: 2, Memory: 4, Duration: 5},
-		{ID: "job-2", CPU: 4, Memory: 4, Duration: 3},
-		{ID: "job-3", CPU: 6, Memory: 8, Duration: 7},
-		{ID: "job-4", CPU: 1, Memory: 2, Duration: 2},
+		{ID: "job-1", CPU: 2, Memory: 4, Duration: 5, ArrivalTick: 0},
+		{ID: "job-2", CPU: 4, Memory: 4, Duration: 3, ArrivalTick: 0},
+		{ID: "job-3", CPU: 6, Memory: 8, Duration: 7, ArrivalTick: 0},
+		{ID: "job-4", CPU: 1, Memory: 2, Duration: 2, ArrivalTick: 0},
 	}
 }
 

@@ -1,15 +1,18 @@
-"""
-Cluster is system state
-"""
-
 package cluster
+
+// Cluster is system state
+
+import (
+	"fmt"
+	"distributed-scheduler/jobs"
+)
 
 type Cluster struct {
 	Nodes map[string]*Node
 }
 
 func NewCluster(nodeCount int, cpu int, memory int) *Cluster {
-	node := make(map[string]*Node)
+	nodes := make(map[string]*Node)
 
 	for i := 0; i < nodeCount; i++ {
 		id := fmt.Sprintf("node-%d", i)

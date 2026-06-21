@@ -1,15 +1,15 @@
-pakage sim
+package simulator
 
 import (
-	"scheduler-sim/cluster"
-	"scheduler-sim/jobs"
-	"scheduler-sim/scheduler"
-	"scheduler-sim/metrics"
+	"distributed-scheduler/cluster"
+	"distributed-scheduler/jobs"
+	"distributed-scheduler/metrics"
+	"distributed-scheduler/scheduler"
 )
 
 type Engine struct {
 	Cluster *cluster.Cluster
-	Jobs []*jobs.Jobs
+	Jobs    []*jobs.Job
 
 	Tick int
 
@@ -17,54 +17,74 @@ type Engine struct {
 
 	Metrics *metrics.Tracker
 
-	PendingJobs []*jobs.Job
-	RunningJobs map[string]*jobs.Job
+	PendingJobs   []*jobs.Job
 	CompletedJobs []*jobs.Job
 }
 
-type Decision struct {
-	JobID string
-	NodeID string
-}
-
-func (e *Enginer) applyDecisions(decisions []Decision){
-	for _, d := range decisions{
+func (e *Engine) applyDecisions(decisions []scheduler.Decision) {
+	for _, d := range decisions {
 		job := e.findJob(d.JobID)
+		if job == nil {
+			continue
+		}
 		node := e.Cluster.Nodes[d.NodeID]
-
-		if node.CanFit(job){
+		if node == nil {
+			continue
+		}
+		if node.CanFit(job) {
 			node.Assign(job, e.Tick)
-
 			e.removePending(job.ID)
 		}
 	}
 }
 
-func (e *Engine) executeTick() {
-	for _, node := range e.Cluster.Nodes{
-		node.Tick()
+func (e *Engine) findJob(id string) *jobs.Job {
+	for _, job := range e.PendingJobs {
+		if job.ID == id {
+			return job
+		}
+	}
+	return nil
+}
 
-		for _, job := range node.RunningJobs{
-			if job.Duration <= 0 {
-				e.CompletedJobs = append(e.CompletedJobs, job)
-			}
+func (e *Engine) removePending(id string) {
+	for i, job := range e.PendingJobs {
+		if job.ID == id {
+			e.PendingJobs = append(e.PendingJobs[:i], e.PendingJobs[i+1:]...)
+			return
 		}
 	}
 }
 
+func (e *Engine) executeTick() {
+	for _, node := range e.Cluster.Nodes {
+		completed := node.ExecuteTick(e.Tick)
+		e.CompletedJobs = append(e.CompletedJobs, completed...)
+	}
+}
+
 func (e *Engine) loadJobs() {
-	//no-op for v1 since no batch mode
+	// no-op for v1 since no batch mode
+}
+
+func (e *Engine) allNodesIdle() bool {
+	for _, node := range e.Cluster.Nodes {
+		if len(node.RunningJobs) > 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func (e *Engine) Run(maxTicks int) {
-	for e.Tick < maxTicks{
+	for e.Tick < maxTicks {
 		e.loadJobs()
 		decisions := e.Scheduler.Schedule(e.Cluster, e.PendingJobs, e.Tick)
 		e.applyDecisions(decisions)
-		e.ExecuteTick()
-		e.Metrics.Collect(e.Cluster, e.PendingJobs, e.CompletedJobs, e.Tick)
+		e.executeTick()
+		e.Metrics.Collect(e.Cluster, e.CompletedJobs, e.Tick)
 
-		if len(e.PendingJobs) == 0 && e.allNodesIdle(){
+		if len(e.PendingJobs) == 0 && e.allNodesIdle() {
 			break
 		}
 		e.Tick++

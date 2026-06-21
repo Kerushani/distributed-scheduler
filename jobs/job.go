@@ -1,8 +1,6 @@
-"""
-A job is a unit of compute work / workload -> a job is doing stateful execution.
-"""
-
 package jobs
+
+// A job is a unit of compute work / workload -> a job is doing stateful execution.
 
 type Job struct {
 	ID string

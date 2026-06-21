@@ -1,9 +1,10 @@
 package metrics
 
 import (
-	"scheduler-sim/cluster"
-	"scheduler-sim/jobs"
 	"fmt"
+
+	"distributed-scheduler/cluster"
+	"distributed-scheduler/jobs"
 )
 
 type Tracker struct {
@@ -13,21 +14,21 @@ type Tracker struct {
 
 	Makespan int
 
-	JobCompletionTim map[string]int
+	JobCompletionTimes map[string]int
 }
 
 func NewTracker() *Tracker {
 	return &Tracker{
-		JobCompletionTimes: make(map[string]int)
+		JobCompletionTimes: make(map[string]int),
 	}
 }
 
 func (m *Tracker) Collect(
 	c *cluster.Cluster,
-	completedJobs []*jobs.Job
-	currentTick int
-){
-	n.TotalTicks++
+	completedJobs []*jobs.Job,
+	currentTick int,
+) {
+	m.TotalTicks++
 
 	totalCPU := 0
 	usedCPU := 0
@@ -44,24 +45,30 @@ func (m *Tracker) Collect(
 
 	for _, job := range completedJobs {
 		if _, exists := m.JobCompletionTimes[job.ID]; !exists {
-			m.JobCompletionTimes[job.ID] = job.EndTick
+			m.JobCompletionTimes[job.ID] = job.EndTick - job.StartTick
 		}
 	}
 	m.Makespan = currentTick
 }
 
 func (m *Tracker) AverageUtilization() float64 {
+	if m.TotalTicks == 0 {
+		return 0
+	}
+	return (m.CumulativeUtilization / float64(m.TotalTicks)) * 100
+}
+
+func (m *Tracker) AverageTurnaroundTime() float64 {
 	if len(m.JobCompletionTimes) == 0 {
 		return 0
 	}
 
 	total := 0
-
-	for _, completionTick := range m.JobCompletionTimes {
-		total += completionTick
+	for _, turnaround := range m.JobCompletionTimes {
+		total += turnaround
 	}
 
-	return float64(total) / float64((len(m.JobCompletionTimes)))
+	return float64(total) / float64(len(m.JobCompletionTimes))
 }
 
 func (m *Tracker) PrintReport(schedulerName string) {

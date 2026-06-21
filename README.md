@@ -29,3 +29,8 @@ At each tick:
 - Running jobs decrement remaining time
 - Completed jobs are removed
 - Metrics updated
+
+Layers:
+- Cluster (infra)
+- Scheduler (brain)
+- Engine (orchestrator)

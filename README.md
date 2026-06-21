@@ -40,3 +40,7 @@ Run:
 ```
 go run .
 ```
+
+Current Output:
+<img width="383" height="336" alt="Screenshot 2026-06-20 at 11 54 06 PM" src="https://github.com/user-attachments/assets/b98db85b-dc38-4655-ac27-ced657d24aff" />
+

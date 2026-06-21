@@ -14,12 +14,16 @@ type Tracker struct {
 
 	Makespan int
 
-	JobCompletionTimes map[string]int
+	JobQueueWaits map[string]int
+	JobTurnarounds map[string]int
+	JobServiceTimes map[string]int
 }
 
 func NewTracker() *Tracker {
 	return &Tracker{
-		JobCompletionTimes: make(map[string]int),
+		JobQueueWaits: make(map[string]int),
+		JobTurnarounds: make(map[string]int),
+		JobServiceTimes: make(map[string]int),
 	}
 }
 
@@ -44,10 +48,13 @@ func (m *Tracker) Collect(
 	}
 
 	for _, job := range completedJobs {
-		if _, exists := m.JobCompletionTimes[job.ID]; !exists {
-			m.JobCompletionTimes[job.ID] = job.EndTick - job.StartTick
+		if _, exists := m.JobTurnarounds[job.ID]; !exists {
+			continue
 		}
-	}
+		m.JobQueueWaits[job.ID] = job.StartTick - job.ArrivalTick
+		m.JobTurnarounds[job.ID] = job.EndTick - job.ArrivalTick
+		m.JobServiceTimes[job.ID] = job.EndTick - job.StartTick
+	}	
 	m.Makespan = currentTick
 }
 
@@ -58,17 +65,29 @@ func (m *Tracker) AverageUtilization() float64 {
 	return (m.CumulativeUtilization / float64(m.TotalTicks)) * 100
 }
 
+func (m *Tracker) AverageQueueWait() float64 {
+	return averageFromMap(m.JobQueueWaits)
+}
+
 func (m *Tracker) AverageTurnaroundTime() float64 {
-	if len(m.JobCompletionTimes) == 0 {
+	return averageFromMap(m.JobTurnarounds)
+}
+
+func (m*Tracker) AverageServiceTime() float64 {
+	return averageFromMap(m.JobServiceTimes)
+}
+
+func averageFromMap(values map[string]int) float64 {
+	if len(values) == 0 {
 		return 0
 	}
 
 	total := 0
-	for _, turnaround := range m.JobCompletionTimes {
-		total += turnaround
-	}
 
-	return float64(total) / float64(len(m.JobCompletionTimes))
+	for _, value := range values {
+		total += value
+	}
+	return float64(total) / float64(len(values))
 }
 
 func (m *Tracker) PrintReport(schedulerName string) {
@@ -78,7 +97,9 @@ func (m *Tracker) PrintReport(schedulerName string) {
 
 	fmt.Printf("Makespan: %d ticks\n", m.Makespan)
 	fmt.Printf("Average Utilization: %.2f%%\n", m.AverageUtilization())
+	fmt.Printf("Average Queue Wait: %.2f%%\n", m.AverageQueueWait())
 	fmt.Printf("Average Turnaround Time: %.2f ticks\n", m.AverageTurnaroundTime())
+	fmt.Printf("Average Service Time: %.2f%%\n", m.AverageServiceTime())
 
 	fmt.Println()
 }

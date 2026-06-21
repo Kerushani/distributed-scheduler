@@ -19,6 +19,8 @@ type Engine struct {
 
 	PendingJobs   []*jobs.Job
 	CompletedJobs []*jobs.Job
+
+	nextJobIndex int
 }
 
 func (e *Engine) applyDecisions(decisions []scheduler.Decision) {
@@ -64,7 +66,10 @@ func (e *Engine) executeTick() {
 }
 
 func (e *Engine) loadJobs() {
-	// no-op for v1 since no batch mode
+	for e.nextJobIndex < len(e.Jobs) && e.Jobs[e.nextJobIndex].ArrivalTick <= e.Tick{
+		e.PendingJobs = append(e.PendingJobs, e.Jobs[e.nextJobIndex])
+		e.nextJobIndex++
+	}
 }
 
 func (e *Engine) allNodesIdle() bool {
@@ -76,6 +81,10 @@ func (e *Engine) allNodesIdle() bool {
 	return true
 }
 
+func (e *Engine) allJobsReleased() bool {
+	return e.nextJobIndex >= len(e.Jobs)
+}
+
 func (e *Engine) Run(maxTicks int) {
 	for e.Tick < maxTicks {
 		e.loadJobs()
@@ -84,7 +93,7 @@ func (e *Engine) Run(maxTicks int) {
 		e.executeTick()
 		e.Metrics.Collect(e.Cluster, e.CompletedJobs, e.Tick)
 
-		if len(e.PendingJobs) == 0 && e.allNodesIdle() {
+		if e.allJobsReleased() && len(e.PendingJobs) == 0 && e.allNodesIdle() {
 			break
 		}
 		e.Tick++

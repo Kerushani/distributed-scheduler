@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"fmt"
+	"sort"
 
 	"distributed-scheduler/cluster"
 	"distributed-scheduler/jobs"
@@ -90,6 +91,23 @@ func averageFromMap(values map[string]int) float64 {
 	return float64(total) / float64(len(values))
 }
 
+func (m*Tracker) PercentileQueueWait(p float64) float64 {
+	return percentileFromMap(m.JobQueueWaits, p)
+}
+
+func percentileFromMap(values map[string]int, p float64) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+	sorted := make([]int, 0, len(values))
+	for _, v := range values {
+		sorted = append(sorted, v)
+	}
+	sort.Ints(sorted)
+	idx := int(p * float64(len(sorted)-1))
+	return float64(sorted[idx])
+}
+
 func (m *Tracker) PrintReport(schedulerName string) {
 	fmt.Println("==============================")
 	fmt.Printf("%s Results\n", schedulerName)
@@ -100,6 +118,7 @@ func (m *Tracker) PrintReport(schedulerName string) {
 	fmt.Printf("Average Queue Wait: %.2f%%\n", m.AverageQueueWait())
 	fmt.Printf("Average Turnaround Time: %.2f ticks\n", m.AverageTurnaroundTime())
 	fmt.Printf("Average Service Time: %.2f%%\n", m.AverageServiceTime())
+	fmt.Printf("P95 Queue Wait: %.2f ticks\n", m.PercentileQueueWait(0.95))
 
 	fmt.Println()
 }

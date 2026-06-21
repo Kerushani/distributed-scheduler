@@ -22,39 +22,21 @@ func cloneJobs(original []*jobs.Job) []*jobs.Job {
 }
 
 func main() {
-	workload := []*jobs.Job{
-		{
-			ID:       "job-1",
-			CPU:      2,
-			Memory:   4,
-			Duration: 5,
-		},
-		{
-			ID:       "job-2",
-			CPU:      4,
-			Memory:   4,
-			Duration: 3,
-		},
-		{
-			ID:       "job-3",
-			CPU:      6,
-			Memory:   8,
-			Duration: 7,
-		},
-		{
-			ID:       "job-4",
-			CPU:      1,
-			Memory:   2,
-			Duration: 2,
-		},
-	}
+	profile := jobs.ProfileBurst
 
+	workload := jobs.Generate(profile)
+
+	fmt.Printf("Workload profile: %s\n", profile)
+	jobs.DebugPrint(workload)
+	fmt.Println()
+	
+	jobs.DebugPrint(workload)
 	greedyCluster := cluster.NewCluster(3, 8, 16)
 
 	greedyEngine := simulator.Engine{
 		Cluster:     greedyCluster,
 		Jobs:        cloneJobs(workload),
-		PendingJobs: cloneJobs(workload),
+		PendingJobs: nil,
 		Scheduler:   &scheduler.GreedyScheduler{},
 		Metrics:     metrics.NewTracker(),
 	}
@@ -69,7 +51,7 @@ func main() {
 	oracleEngine := simulator.Engine{
 		Cluster:     oracleCluster,
 		Jobs:        cloneJobs(workload),
-		PendingJobs: cloneJobs(workload),
+		PendingJobs: nil,
 		Scheduler:   &scheduler.DpOracleScheduler{},
 		Metrics:     metrics.NewTracker(),
 	}

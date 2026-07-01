@@ -91,7 +91,7 @@ func (e *Engine) Run(maxTicks int) {
 		decisions := e.Scheduler.Schedule(e.Cluster, e.PendingJobs, e.Tick)
 		e.applyDecisions(decisions)
 		e.executeTick()
-		e.Metrics.Collect(e.Cluster, e.CompletedJobs, e.Tick)
+		e.Metrics.Collect(e.Cluster, e.PendingJobs, e.CompletedJobs, e.Tick)
 
 		if e.allJobsReleased() && len(e.PendingJobs) == 0 && e.allNodesIdle() {
 			break

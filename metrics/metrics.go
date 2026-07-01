@@ -12,6 +12,7 @@ type Tracker struct {
 	TotalTicks int
 
 	CumulativeUtilization float64
+	CumulativeFragmentation float64
 
 	Makespan int
 
@@ -30,6 +31,7 @@ func NewTracker() *Tracker {
 
 func (m *Tracker) Collect(
 	c *cluster.Cluster,
+	pendingJobs []*jobs.Job,
 	completedJobs []*jobs.Job,
 	currentTick int,
 ) {
@@ -47,6 +49,7 @@ func (m *Tracker) Collect(
 		utilization := float64(usedCPU) / float64(totalCPU)
 		m.CumulativeUtilization += utilization
 	}
+	m.CumulativeFragmentation += fragmentation(c, pendingJobs)
 
 	for _, job := range completedJobs {
 		if _, exists := m.JobTurnarounds[job.ID]; exists {
@@ -59,11 +62,49 @@ func (m *Tracker) Collect(
 	m.Makespan = currentTick
 }
 
+// Utilization alone hides stranded capacity. Fragmentation explains why jobs wait even when the cluster looks partially free.
+func fragmentation (c *cluster.Cluster, pending []*jobs.Job) float64 {
+	if len(pending) == 0 {
+		return 0
+	}
+
+	total := 0.0
+
+	for _, node := range c.Nodes {
+		freeCPU := node.FreeCPU()
+		freeMem := node.FreeMemory()
+
+		if freeCPU == 0 && freeMem == 0 {
+			continue
+		}
+
+		canPlaceAny := false
+
+		for _, job := range pending {
+			if freeCPU >= job.CPU && freeMem >= job.Memory {
+				canPlaceAny = true
+				break
+			}
+		}
+		if !canPlaceAny {
+			total += float64(freeCPU + freeMem)
+		}
+	}
+	return total
+}
+
 func (m *Tracker) AverageUtilization() float64 {
 	if m.TotalTicks == 0 {
 		return 0
 	}
 	return (m.CumulativeUtilization / float64(m.TotalTicks)) * 100
+}
+
+func (m *Tracker) AverageFragmentation() float64 {
+	if m.TotalTicks == 0 {
+		return 0
+	}
+	return m.CumulativeFragmentation / float64(m.TotalTicks)
 }
 
 func (m *Tracker) AverageQueueWait() float64 {
@@ -115,6 +156,8 @@ func (m *Tracker) PrintReport(schedulerName string) {
 
 	fmt.Printf("Makespan: %d ticks\n", m.Makespan)
 	fmt.Printf("Average Utilization: %.2f%%\n", m.AverageUtilization())
+	// looks at stranded capacity due to there being a free node that is not at use because no pending job can fit into its capacity limit
+	fmt.Printf("Average Fragmentation: %.2f%%\n", m.AverageFragmentation())
 	fmt.Printf("Average Queue Wait: %.2f ticks\n", m.AverageQueueWait())
 	fmt.Printf("Average Turnaround Time: %.2f ticks\n", m.AverageTurnaroundTime())
 	fmt.Printf("Average Service Time: %.2f ticks\n", m.AverageServiceTime())

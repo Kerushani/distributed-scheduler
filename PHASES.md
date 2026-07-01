@@ -1,8 +1,16 @@
 # Distributed Scheduler — v2 Roadmap & Progress
 
+Use `@PHASES.md` in new Cursor chats to resume context.
+
+## Preferences
+
+- **Tutorial style:** step-by-step breakdown with concepts + copy-paste code snippets. User writes the code; agent explains and reviews.
+- **Don't auto-implement** unless explicitly asked (e.g. "make the fixes", "implement this").
+- **Minimal scope:** match existing code style and conventions.
+
 ## Project summary
 
-Tick-based Go simulator comparing cluster schedulers (greedy / fit heuristics / DP oracle) on a heterogeneous cluster. Measures makespan, utilization, queue wait, turnaround, fragmentation.
+Tick-based Go simulator comparing cluster schedulers (fit heuristics / DP oracle) on a heterogeneous cluster. Measures makespan, utilization, queue wait, turnaround, fragmentation.
 
 ```
 Engine → Scheduler → Cluster/Nodes → Jobs
@@ -15,7 +23,7 @@ Engine → Scheduler → Cluster/Nodes → Jobs
 | Phase | Topic | Status |
 |-------|-------|--------|
 | **1** | Workloads & queueing (`ArrivalTick`, generator, `loadJobs`, queue wait / turnaround metrics) | **Done** |
-| **2** | Heterogeneous cluster & bin packing (first/best/worst-fit, fragmentation) | **In progress** |
+| **2** | Heterogeneous cluster & bin packing (first/best/worst-fit, fragmentation) | **Done** |
 | **3** | Real multi-node DP oracle + scheduling efficiency gap | Not started |
 | **4** | Scheduler policies (priority, fairness, gang scheduling) | Not started |
 | **5** | Failure & preemption | Not started |
@@ -35,22 +43,22 @@ Engine → Scheduler → Cluster/Nodes → Jobs
 - Turnaround = `EndTick - ArrivalTick`
 - Service time = `EndTick - StartTick`
 
-## Phase 2 — in progress
+## Phase 2 — done
 
 **Goal:** Nodes differ in size; compare placement strategies; measure fragmentation.
 
-**Build order:**
-1. `cluster/node.go` — `FreeCPU()`, `FreeMemory()`
-2. `cluster/cluster.go` — `NodeSpec`, `NewHeterogeneousCluster`
-3. `scheduler/fit.go` — shared `placeJobs` + scoring
-4. `scheduler/first_fit.go`, `best_fit.go`, `worst_fit.go`
-5. `metrics/metrics.go` — fragmentation metric
-6. `simulator/engine.go` — pass `PendingJobs` to `Collect`
-7. `jobs/generator.go` — `ProfileMixed`
-8. `main.go` — heterogeneous cluster + compare 3 schedulers
-9. `metrics/comparison.go` — `CompareSchedulers` for N schedulers
+**Delivered:**
+- `cluster/node.go` — `FreeCPU()`, `FreeMemory()`
+- `cluster/cluster.go` — `NodeSpec`, `NewHeterogeneousCluster`, sorted `AllNodes()`
+- `scheduler/fit.go` — shared `placeJobs` + scoring
+- `scheduler/first_fit.go`, `best_fit.go`, `worst_fit.go`
+- `metrics/metrics.go` — fragmentation metric
+- `simulator/engine.go` — pass `PendingJobs` to `Collect`
+- `jobs/generator.go` — `ProfileMixed`
+- `main.go` — heterogeneous cluster + compare 3 schedulers
+- `metrics/comparison.go` — `CompareSchedulers` for N schedulers
 
-**Keep:** `greedy.go` (equivalent to best-fit) and `dp_oracle.go` for later Phase 3 work.
+**Keep:** `greedy.go` (equivalent to best-fit) and `dp_oracle.go` for Phase 3 work.
 
 ## Phase 3+ (planned)
 
@@ -58,9 +66,14 @@ Engine → Scheduler → Cluster/Nodes → Jobs
 - **4:** Priority, fair share, gang scheduling
 - **5:** Node failure, draining, preemption
 - **6:** Per-tick traces, CSV export, `cmd/experiment`, CLI flags
+- **7:** Prometheus metrics & Docker compose stack
 
 ## Run
 
 ```bash
 go run .
 ```
+
+## Resume prompt (paste in new chat)
+
+> Continuing distributed-scheduler v2. Read `@PHASES.md` and the codebase. Phase 1–2 done. Working on Phase 3 (multi-node DP oracle, scheduling efficiency gap). Tutorial style with copy-paste snippets — I'll write the code.

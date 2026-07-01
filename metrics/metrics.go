@@ -157,7 +157,7 @@ func (m *Tracker) PrintReport(schedulerName string) {
 	fmt.Printf("Makespan: %d ticks\n", m.Makespan)
 	fmt.Printf("Average Utilization: %.2f%%\n", m.AverageUtilization())
 	// looks at stranded capacity due to there being a free node that is not at use because no pending job can fit into its capacity limit
-	fmt.Printf("Average Fragmentation: %.2f%%\n", m.AverageFragmentation())
+	fmt.Printf("Average Fragmentation: %.2f\n", m.AverageFragmentation())
 	fmt.Printf("Average Queue Wait: %.2f ticks\n", m.AverageQueueWait())
 	fmt.Printf("Average Turnaround Time: %.2f ticks\n", m.AverageTurnaroundTime())
 	fmt.Printf("Average Service Time: %.2f ticks\n", m.AverageServiceTime())

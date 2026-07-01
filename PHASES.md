@@ -1,11 +1,5 @@
 # Distributed Scheduler — v2 Roadmap & Progress
 
-## Preferences
-
-- **Tutorial style:** step-by-step breakdown with concepts + copy-paste code snippets. User writes the code; agent explains and reviews.
-- **Don't auto-implement** unless explicitly asked (e.g. "make the fixes", "implement this").
-- **Minimal scope:** match existing code style and conventions.
-
 ## Project summary
 
 Tick-based Go simulator comparing cluster schedulers (greedy / fit heuristics / DP oracle) on a heterogeneous cluster. Measures makespan, utilization, queue wait, turnaround, fragmentation.

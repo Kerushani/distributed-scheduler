@@ -1,7 +1,5 @@
 # Distributed Scheduler — v2 Roadmap & Progress
 
-Use `@PHASES.md` in new Cursor chats to resume context.
-
 ## Preferences
 
 - **Tutorial style:** step-by-step breakdown with concepts + copy-paste code snippets. User writes the code; agent explains and reviews.

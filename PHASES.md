@@ -1,13 +1,5 @@
 # Distributed Scheduler — v2 Roadmap & Progress
 
-Use `@PHASES.md` in new Cursor chats to resume context.
-
-## Preferences
-
-- **Tutorial style:** step-by-step breakdown with concepts + copy-paste code snippets. User writes the code; agent explains and reviews.
-- **Don't auto-implement** unless explicitly asked (e.g. "make the fixes", "implement this").
-- **Minimal scope:** match existing code style and conventions.
-
 ## Project summary
 
 Tick-based Go simulator comparing cluster schedulers (fit heuristics / DP oracle) on a heterogeneous cluster. Measures makespan, utilization, queue wait, turnaround, fragmentation.
@@ -34,7 +26,7 @@ Engine → Scheduler → Cluster/Nodes → Jobs
 
 - `jobs/job.go` — `ArrivalTick` field
 - `jobs/generator.go` — `ProfileBurst`, `ProfileSteady`
-- `simulator/engine.go` — `loadJobs()` with `nextJobIndex` cursor
+- `simulator/engine.go` — `loadJobs()` with `nextJobIndex`
 - `metrics/metrics.go` — queue wait, turnaround, service time, P95 queue wait
 - `main.go` — generator-driven workload, empty `PendingJobs` at start
 
@@ -73,7 +65,3 @@ Engine → Scheduler → Cluster/Nodes → Jobs
 ```bash
 go run .
 ```
-
-## Resume prompt (paste in new chat)
-
-> Continuing distributed-scheduler v2. Read `@PHASES.md` and the codebase. Phase 1–2 done. Working on Phase 3 (multi-node DP oracle, scheduling efficiency gap). Tutorial style with copy-paste snippets — I'll write the code.

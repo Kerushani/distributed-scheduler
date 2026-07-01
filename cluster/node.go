@@ -11,6 +11,14 @@ type Node struct {
 	RunningJobs map[string]*jobs.Job
 }
 
+func (n *Node) FreeCPU() int {
+	return n.TotalCPU - n.UsedCPU
+}
+
+func (n *Node) FreeMemory() int {
+	return n.TotalMemory - n.UsedMemory
+}
+
 func (n *Node) CanFit(job *jobs.Job) bool {
 	return n.UsedCPU+job.CPU <= n.TotalCPU && n.UsedMemory+job.Memory <= n.TotalMemory
 }

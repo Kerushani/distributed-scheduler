@@ -1,0 +1,19 @@
+# Build output (go build defaults to module name)
+/distributed-scheduler
+
+# Go binaries and test artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Dependency/vendor (if added later)
+/vendor/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store

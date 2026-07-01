@@ -9,12 +9,15 @@ type Profile string
 const(
 	ProfileBurst Profile = "burst"
 	ProfileSteady Profile = "steady"
+	ProfileMixed Profile = "mixed"
 )
 
 func Generate(profile Profile) []*Job {
 	switch profile {
 		case ProfileSteady:
 			return steadyWorkload()
+		case ProfileMixed:
+			return mixedWorkload()
 		default:
 			return burstWorkload()
 	}
@@ -53,6 +56,17 @@ func steadyWorkload() []*Job{
 		}
 	}
 	return jobs
+}
+
+func mixedWorkload() []*Job {
+	return []*Job{
+		{ID: "cpu-heavy-1", CPU: 7, Memory: 2, Duration: 4, ArrivalTick: 0},
+		{ID: "cpu-heavy-2", CPU: 6, Memory: 2, Duration: 3, ArrivalTick: 0},
+		{ID: "mem-heavy-1", CPU: 2, Memory: 12, Duration: 5, ArrivalTick: 0},
+		{ID: "mem-heavy-2", CPU: 1, Memory: 10, Duration: 4, ArrivalTick: 0},
+		{ID: "balanced-1", CPU: 4, Memory: 4, Duration: 3, ArrivalTick: 0},
+		{ID: "small-1", CPU: 1, Memory: 1, Duration: 2, ArrivalTick: 0},
+	}
 }
 
 func DebugPrint(jobs []*Job) {

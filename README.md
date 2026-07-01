@@ -1,30 +1,28 @@
 Distributed Scheduler - A Brief Outline
 
-Refer to Phases.md for in-depth explanation of the phases of the project.
+Refer to [PHASES.md](PHASES.md) for the full v2 roadmap and progress.
 
-This is a mini distributed job scheduling system that simulates how real cluster schedulers work. It uses a tick-based engine with two scheduler implementations, a greedy scheduler and a DP-based oracle, that can be swapped in for comparison.
+This is a mini distributed job scheduling system that simulates how real cluster schedulers work. A tick-based engine runs workloads over discrete time steps, assigns jobs to nodes, and collects metrics. Schedulers are swappable behind a common interface.
 
-The system has two scheduler paths (both run through the same engine):
-- Greedy Scheduler -> uses best-fit scoring to pick a node per job
-- DP Oracle (Benchmark Path) -> uses DP to find optimal job ordering on a single node (small N only)
-Both can be compared to evaluate scheduling quality.
+**Phase 1 (done):** Jobs arrive over time via workload profiles (burst, steady). Metrics track queue wait, turnaround, and service time.
 
-The goal is to simulate a distributed compute cluster and evaluate scheduling efficiency, resource utilization, and job completion time (makespan).
+**Phase 2 (done):** Clusters can be heterogeneous (nodes with different CPU/memory). Three bin-packing schedulers — first-fit, best-fit, worst-fit — are compared on a mixed workload. Fragmentation measures stranded capacity when pending jobs cannot use free resources on a node.
+
+The current `main.go` runs first-fit, best-fit, and worst-fit on a heterogeneous 3-node cluster with `ProfileMixed`. A DP oracle (`dp_oracle.go`) remains for Phase 3 benchmarking.
+
+The goal is to simulate a distributed compute cluster and evaluate scheduling efficiency, resource utilization, job completion time (makespan), and placement quality.
 
 Some terminology:
 - Job: Represents a unit of work
 - Node: Represents a compute machine
 - Cluster: Collection of nodes
 - Scheduler (brain):
-    - Greedy Scheduler
-        - For each pending job, computes a score per node and assigns to best-fit node
-    - DP Oracle
-        - Takes pending jobs each tick
-        - Computes optimal execution order on one node (not multi-node assignment yet)
-        - Only for benchmarking purposes
+    - First-Fit / Best-Fit / Worst-Fit — bin-packing placement on heterogeneous nodes
+    - Greedy Scheduler — equivalent to best-fit (kept for compatibility)
+    - DP Oracle — single-node ordering benchmark (Phase 3 will add multi-node assignment)
 - Engine (orchestrator): Runs the tick loop, applies scheduler decisions, executes jobs, collects metrics
 
-The schedulers are compared on makespan (total completion time), average node utilization %, and average turnaround time.
+The schedulers are compared on makespan, average node utilization %, queue wait, turnaround, service time, and fragmentation.
 
 At each tick:
 - Scheduler reads pending jobs from the queue

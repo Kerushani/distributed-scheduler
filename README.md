@@ -1,5 +1,7 @@
 Distributed Scheduler - A Brief Outline
 
+Refer to Phases.md for in-depth explanation of the phases of the project.
+
 This is a mini distributed job scheduling system that simulates how real cluster schedulers work. It uses a tick-based engine with two scheduler implementations, a greedy scheduler and a DP-based oracle, that can be swapped in for comparison.
 
 The system has two scheduler paths (both run through the same engine):

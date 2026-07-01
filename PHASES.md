@@ -20,6 +20,7 @@ Engine → Scheduler → Cluster/Nodes → Jobs
 | **4** | Scheduler policies (priority, fairness, gang scheduling) | Not started |
 | **5** | Failure & preemption | Not started |
 | **6** | Observability & experiments (CSV, sweeps, CLI flags) | Not started |
+| **7** | Prometheus metrics & Docker (containerization, compose stack) | Not started |
 
 ## Phase 1 — done
 

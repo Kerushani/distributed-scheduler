@@ -5,6 +5,8 @@ import (
 	"distributed-scheduler/jobs"
 )
 
+// Walk nodes in order (node-0, node-1, …). Place on the first that fits. Fast, predictable, order-sensitive.
+
 type FirstFitScheduler struct{}
 
 func (s *FirstFitScheduler) Schedule(c *cluster.Cluster, pending []*jobs.Job, tick int) []Decision {
